@@ -511,7 +511,6 @@ public class PingOutLine extends JFrame {
 					@Override
 					public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 							boolean hasFocus, int row, int column) {
-						// TODO Auto-generated method stub
 						if (value instanceof JLabel) return (JLabel) value;
 						return null;
 					}

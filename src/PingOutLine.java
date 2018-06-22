@@ -39,9 +39,12 @@ public class PingOutLine extends JFrame {
 	String ip;
 	String[] titles;
 	Object[][] stats;
+	private double progressin = 0.0;
+	private double delta = 0.0;
 	public PingOutLine() {
 		super("network scanner");
 		//
+		
 		String myIp=null;
 		String myHostName=null;
 		
@@ -359,12 +362,8 @@ public class PingOutLine extends JFrame {
 		AboutAction.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					java.awt.Desktop.getDesktop().browse(java.net.URI.create("http://github.com/ghks332244"));
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} 
+				UnImplement frame = new UnImplement();
+				frame.setVisible(true);
 			}
 		});
 		FAQAction.addActionListener(new ActionListener() {
@@ -503,7 +502,7 @@ public class PingOutLine extends JFrame {
 				int IPEndnum = Integer.parseInt(ipEndTextFeild.getText().substring(ipEndTextFeild.getText().lastIndexOf(".") + 1));
 				toolbar2.remove(startButton);
 				toolbar2.add(stopButton);
-				statusbar.setIndeterminate(true);
+				statusbar.setValue((int)Math.round(progressin));
 				readystatusLabel.setText("searching");
 				jtable.repaint();
 				statusPanel.repaint();
@@ -518,20 +517,32 @@ public class PingOutLine extends JFrame {
 					}
 					
 				});
+				delta = (100.0/(IPEndnum-IPStartnum));
+				
 				new Thread(() -> {
 				Pinging[] pg = new Pinging[IPEndnum];
 				for(int i=IPStartnum-1; i<IPEndnum ; i++) {
 					Object[] msg = stats[i];
+					try {
+						Thread.sleep(5);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					pg[i] = new Pinging(fixed+i,msg);
 					pg[i].start();
-				}
-				while (Thread.activeCount()>3)
-				{
 					jtable.repaint();
-					threadstatusLabel.setText("Threads: " + (Thread.activeCount()-3));
+					progressin=progressin+delta;
+					if (Thread.activeCount()>3)
+					{
+						jtable.repaint();
+						threadstatusLabel.setText("Threads: " + (Thread.activeCount()-3));
+					}
+					statusbar.setValue((int)Math.round(progressin));
+					statusbar.repaint();
 				}
+				
 				for(int i=IPStartnum-1;i<IPEndnum;i++) {
-					// scan code
 					jtable.repaint();
 					if(stats[i][1]!="[n/a]"||stats[i][2]!="[n/s]"||stats[i][3]!="[n/s]") {
 						PortScanner ps = new PortScanner();
@@ -574,7 +585,7 @@ public class PingOutLine extends JFrame {
 				}
 				jtable.repaint();
 				threadstatusLabel.setText("Threads: 0" );
-				statusbar.setIndeterminate(false);
+				statusbar.setValue(0);
 				toolbar2.remove(stopButton);
 				toolbar2.add(startButton);		
 				readystatusLabel.setText("ready");
@@ -621,6 +632,6 @@ public class PingOutLine extends JFrame {
 	}
 	
 	public static void main(String[] args) {
-		PingOutLine po = new PingOutLine();
+		new PingOutLine();
 	}
 }
